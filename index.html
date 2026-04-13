@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invitación A & L</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --wine-1: #b61f2a;
+      --wine-2: #8e121d;
+      --wine-3: #690a12;
+      --paper-1: #fffdfa;
+      --paper-2: #f4ebdf;
+      --paper-3: #eadbc8;
+      --text: #fff8f2;
+      --shadow: rgba(41, 23, 12, 0.28);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #1d1410;
+    }
+
+    .scene {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      perspective: 1800px;
+      background: #1d1410;
+    }
+
+    .bg {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: #1d1410;
+    }
+
+    .bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.02);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background:
+        linear-gradient(180deg, rgba(255,249,242,0.16) 0%, rgba(89,55,35,0.08) 34%, rgba(26,16,12,0.22) 100%),
+        radial-gradient(circle at top, rgba(255,255,255,0.22), transparent 30%);
+    }
+
+    .top {
+      position: absolute;
+      top: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 12;
+      text-align: center;
+      color: var(--text);
+      text-shadow: 0 4px 14px rgba(0,0,0,0.28);
+    }
+
+    .top .small {
+      font-size: 12px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      opacity: 0.96;
+    }
+
+    .top .big {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 34px;
+      letter-spacing: 0.18em;
+    }
+
+    .mail {
+      position: relative;
+      z-index: 10;
+      width: min(98vw, 560px);
+      height: 332px;
+      margin-bottom: 34px;
+      filter: drop-shadow(0 26px 36px var(--shadow));
+    }
+
+    .mail-glow {
+      position: absolute;
+      left: 50%;
+      bottom: -10px;
+      transform: translateX(-50%);
+      width: 84%;
+      height: 56px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(255,239,222,0.56), rgba(255,239,222,0) 70%);
+      filter: blur(14px);
+      z-index: 0;
+      opacity: 0.9;
+    }
+
+    .envelope {
+      position: absolute;
+      inset: 0;
+    }
+
+    .back {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 8px;
+      bottom: 0;
+      background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+      border-radius: 24px 24px 28px 28px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.6),
+        inset 0 -2px 8px rgba(208,188,166,0.45);
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .back::before {
+      content: "";
+      position: absolute;
+      inset: 18px 20px 20px 20px;
+      border-radius: 14px 14px 18px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.48), rgba(240,225,206,0.78));
+    }
+
+    .back::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 78px;
+      background: linear-gradient(180deg, #f9f2e9, #f2e6d8);
+      border-radius: 22px 22px 0 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+    }
+
+    .hinge {
+      display: none;
+    }
+
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 188px;
+      clip-path: polygon(0 0, 50% 100%, 100% 0);
+      background: linear-gradient(180deg, #fffefc, #f1e6d9);
+      transform-origin: top center;
+      transition: transform 0.95s cubic-bezier(.22,.8,.2,1);
+      z-index: 7;
+      backface-visibility: hidden;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.45),
+        0 4px 10px rgba(0,0,0,0.04);
+    }
+
+    .front-left, .front-right, .front-center {
+      position: absolute;
+      bottom: 0;
+    }
+
+    .shoulder-left,
+    .shoulder-right {
+      position: absolute;
+      top: 22px;
+      width: 142px;
+      height: 112px;
+      background: linear-gradient(180deg, #fbf4ec, #efe1d0);
+      z-index: 2;
+    }
+
+    .shoulder-left {
+      left: 0;
+      clip-path: polygon(0 0, 100% 0, 46% 100%, 0 100%);
+      border-top-left-radius: 20px;
+    }
+
+    .shoulder-right {
+      right: 0;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 54% 100%);
+      border-top-right-radius: 20px;
+    }
+
+    .front-left {
+      left: 0;
+      width: 50%;
+      height: 186px;
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+      background: linear-gradient(180deg, #fcf6ef, #eadac7);
+      border-bottom-left-radius: 24px;
+      z-index: 3;
+    }
+
+    .front-right {
+      right: 0;
+      width: 50%;
+      height: 186px;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      background: linear-gradient(180deg, #f8efe4, #e3d2bd);
+      border-bottom-right-radius: 24px;
+      z-index: 3;
+    }
+
+    .front-center {
+      left: 0;
+      right: 0;
+      height: 170px;
+      clip-path: polygon(0 0, 50% 78%, 100% 0, 100% 100%, 0 100%);
+      background: linear-gradient(180deg, #fffdfa, #efdfcf);
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+      z-index: 5;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .seal {
+      position: absolute;
+      left: 50%;
+      top: 124px;
+      transform: translateX(-50%);
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      z-index: 9;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 32% 26%, rgba(255,255,255,0.22), rgba(255,255,255,0) 16%),
+        radial-gradient(circle at 70% 72%, rgba(77,6,10,0.38), rgba(77,6,10,0) 28%),
+        radial-gradient(circle at 50% 48%, var(--wine-1) 0%, #a91723 44%, var(--wine-2) 72%, var(--wine-3) 100%);
+      border: 2px solid rgba(111, 10, 16, 0.58);
+      box-shadow:
+        0 10px 18px rgba(90, 10, 16, 0.34),
+        inset 0 2px 2px rgba(255,255,255,0.20),
+        inset 0 -6px 9px rgba(86, 7, 12, 0.40);
+      transition: transform 0.7s ease, opacity 0.45s ease;
+    }
+
+    .seal::before {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: 44% 56% 51% 49% / 48% 45% 55% 52%;
+      border: 3px solid rgba(142, 18, 29, 0.78);
+      opacity: 0.92;
+      pointer-events: none;
+    }
+
+    .seal::after {
+      content: "";
+      position: absolute;
+      inset: 11px;
+      border-radius: 50%;
+      border: 1px solid rgba(112, 11, 17, 0.32);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        inset 0 -3px 6px rgba(67, 6, 10, 0.34);
+      pointer-events: none;
+    }
+
+    .seal-text {
+      position: relative;
+      z-index: 2;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #7c0f16;
+      transform: translateY(1px);
+      text-shadow:
+        0 1px 0 rgba(255,255,255,0.12),
+        0 -1px 0 rgba(76, 4, 10, 0.72),
+        1px 0 0 rgba(95, 7, 12, 0.32),
+        -1px 0 0 rgba(95, 7, 12, 0.32);
+      opacity: 0.96;
+    }
+
+
+    .video-slot {
+      position: absolute;
+      left: 50%;
+      bottom: 138px;
+      width: 244px;
+      height: 332px;
+      transform: translateX(-246px);
+      overflow: hidden;
+      border-radius: 18px 18px 0 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .video-card {
+      position: absolute;
+      left: 50%;
+      bottom: -298px;
+      width: 228px;
+      height: 350px;
+      transform: translateX(-50%);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #000;
+      box-shadow:
+        0 16px 32px rgba(0,0,0,0.22),
+        0 4px 10px rgba(0,0,0,0.12);
+      transition:
+        bottom 1.12s cubic-bezier(.22,.82,.2,1),
+        transform 1.12s cubic-bezier(.22,.82,.2,1),
+        box-shadow 1.12s ease;
+    }
+
+    .video-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 18%, transparent 82%, rgba(0,0,0,0.10));
+      pointer-events: none;
+    }
+
+    .video-card video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+
+    .open .video-slot {
+      overflow: visible;
+    }
+
+    .open .video-card {
+      bottom: 44px;
+      transform: translateX(-50%) translateY(-18px);
+      box-shadow:
+        0 24px 44px rgba(0,0,0,0.24),
+        0 8px 16px rgba(0,0,0,0.14);
+    }
+
+
+
+    .info-slot {
+      position: absolute;
+      left: 50%;
+      bottom: 138px;
+      width: 244px;
+      height: 332px;
+      transform: translateX(2px);
+      overflow: hidden;
+      border-radius: 18px 18px 0 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .info-sheet {
+      position: absolute;
+      left: 50%;
+      bottom: -298px;
+      width: 228px;
+      height: 350px;
+      transform: translateX(-50%);
+      background: rgba(255, 252, 247, 0.98);
+      color: #111;
+      border-radius: 18px;
+      box-shadow:
+        0 14px 30px rgba(0,0,0,0.12),
+        0 3px 8px rgba(0,0,0,0.08);
+      padding: 18px 16px 16px;
+      transition:
+        bottom 1.05s cubic-bezier(.22,.82,.2,1) 0.55s,
+        transform 1.05s cubic-bezier(.22,.82,.2,1) 0.55s,
+        box-shadow 1.05s ease 0.55s;
+      pointer-events: auto;
+    }
+
+    .info-sheet::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 24%),
+        linear-gradient(90deg, rgba(0,0,0,0.018), rgba(0,0,0,0) 14%, rgba(0,0,0,0) 86%, rgba(0,0,0,0.018));
+      pointer-events: none;
+    }
+
+    .info-title {
+      position: relative;
+      z-index: 1;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      text-align: center;
+      margin-bottom: 14px;
+      color: #111;
+    }
+
+    .info-line {
+      position: relative;
+      z-index: 1;
+      display: block;
+      color: #111;
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1.4;
+      padding: 12px 0;
+      border-top: 1px solid rgba(0,0,0,0.10);
+    }
+
+    .info-line:first-of-type {
+      border-top: none;
+      padding-top: 2px;
+    }
+
+    .info-label {
+      display: block;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .info-text {
+      display: block;
+      opacity: 0.86;
+    }
+
+    .open .info-slot {
+      overflow: visible;
+    }
+
+    .open .info-sheet {
+      bottom: 44px;
+      transform: translateX(-50%) translateY(-18px);
+      box-shadow:
+        0 20px 38px rgba(0,0,0,0.14),
+        0 5px 12px rgba(0,0,0,0.09);
+    }
+
+
+    .caption {
+      position: absolute;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      z-index: 11;
+      width: 90%;
+      text-align: center;
+      color: var(--text);
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.24);
+      opacity: 0;
+      transition: opacity 0.8s ease 0.3s;
+    }
+
+    .open .flap {
+      transform: rotateX(174deg);
+    }
+
+    .open .seal {
+      transform: translateX(-50%) translateY(-18px) scale(0.82);
+      opacity: 0;
+    }
+
+    .open .caption {
+      opacity: 1;
+    }
+
+    @media (max-width: 480px) {
+      .top .big { font-size: 30px; }
+      .mail {
+        width: min(89vw, 344px);
+        height: 252px;
+        margin-bottom: 34px;
+      }
+      .back { top: 8px; bottom: 0; height: auto; }
+      .seal {
+        top: 102px;
+        width: 70px;
+        height: 70px;
+      }
+      .seal-text {
+        font-size: 22px;
+      }
+      .video-slot {
+        bottom: 100px;
+        width: 228px;
+        height: 272px;
+      }
+      .video-card {
+        width: 212px;
+        height: 325px;
+      }
+      .video-slot {
+        bottom: 102px;
+        width: 184px;
+        height: 262px;
+        transform: translateX(-188px);
+      }
+      .video-card {
+        width: 172px;
+        height: 278px;
+      }
+      .info-slot {
+        bottom: 102px;
+        width: 184px;
+        height: 262px;
+        transform: translateX(4px);
+      }
+      .info-sheet {
+        width: 172px;
+        height: 278px;
+        padding: 15px 12px 13px;
+      }
+      .info-title {
+        font-size: 16px;
+      }
+      .info-line {
+        font-size: 12px;
+        padding: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" id="scene">
+    <div class="bg">
+      <img src="fondo.jpg" alt="Foto de la pareja" />
+    </div>
+
+    <div class="overlay"></div>
+
+    <div class="top">
+      <div class="small">Toca el sobre</div>
+      <div class="big">A &amp; L</div>
+    </div>
+
+    <div class="mail">
+      <div class="mail-glow"></div>
+      <div class="envelope">
+        <div class="back"></div>
+
+        <div class="info-slot">
+          <div class="info-sheet">
+            <div class="info-title">Detalles</div>
+            <a class="info-line" href="https://maps.app.goo.gl/BxDHraC2w1GPPhbA7" target="_blank" rel="noopener noreferrer">
+              <span class="info-label">Ubicación</span>
+              <span class="info-text">Ver en Google Maps</span>
+            </a>
+            <a class="info-line" href="https://wa.me/573116038317" target="_blank" rel="noopener noreferrer">
+              <span class="info-label">Confirmación</span>
+              <span class="info-text">WhatsApp +57 311 6038317</span>
+            </a>
+          </div>
+        </div>
+        <div class="video-slot">
+          <div class="video-card">
+            <video id="inviteVideo" playsinline preload="auto" loop poster="poster.jpg">
+              <source src="video.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="hinge"></div>
+        <div class="flap"></div>
+        <div class="shoulder-left"></div>
+        <div class="shoulder-right"></div>
+        <div class="front-left"></div>
+        <div class="front-right"></div>
+        <div class="front-center"></div>
+        <div class="seal"><span class="seal-text">A&nbsp;L</span></div>
+      </div>
+    </div>
+
+    <div class="caption">Nuestra historia comienza aquí</div>
+  </div>
+
+  <script>
+    const scene = document.getElementById('scene');
+    const inviteVideo = document.getElementById('inviteVideo');
+
+    scene.addEventListener('click', () => {
+      const isOpening = !scene.classList.contains('open');
+      scene.classList.toggle('open');
+
+      if (isOpening) {
+        inviteVideo.currentTime = 0;
+        inviteVideo.muted = false;
+        inviteVideo.volume = 1;
+        const playAttempt = inviteVideo.play();
+        if (playAttempt && typeof playAttempt.catch === 'function') {
+          playAttempt.catch(() => {});
+        }
+      } else {
+        inviteVideo.pause();
+        inviteVideo.currentTime = 0;
+      }
+    });
+  </script>
+</body>
+</html>
